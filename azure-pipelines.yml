@@ -11,7 +11,7 @@ variables:
 
 steps:
 - script: 
-  dotnet build --configuration $(buildConfiguration)
+    dotnet build --configuration $(buildConfiguration)
 
 - task: PublishTestResults@2
   inputs: 
