@@ -20,7 +20,4 @@
     <AssemblyTitle>Json.NET .NET Standard 2.0</AssemblyTitle>
     <DefineConstants>NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugSymbols>false</DebugSymbols>
-  </PropertyGroup>
 </Project>

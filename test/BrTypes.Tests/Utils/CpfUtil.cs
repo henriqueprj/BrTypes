@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
 using System.Linq;
 
@@ -24,7 +26,27 @@ namespace BrTypes.Tests.Utils
 
             return string.Concat(cpfValido.Substring(0, 9), digitoInvalido.ToString("00"));
         }
+
+        public static IEnumerable<string> GerarCpfs()
+        {
+            while (true) yield return GerarCpf();
+        }
         
+        public static IEnumerable<string> GerarCpfs(int quantidade)
+        {
+            if (quantidade < 0) throw new ArgumentOutOfRangeException(nameof(quantidade));
+
+            for (var i = 0; i < quantidade; i++)
+            {
+                yield return GerarCpf();
+            }
+        }
+
+        private static IEnumerable<string> GerarCpfsInfinito()
+        {
+            while (true) yield return GerarCpf();
+        }
+
         public static string GerarCpf(bool comMascara = false)
         {
             string cpf;
