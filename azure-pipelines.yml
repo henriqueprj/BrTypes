@@ -10,10 +10,10 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- script:
+- script: 
   dotnet build --configuration $(buildConfiguration)
 
 - task: PublishTestResults@2
-  inputs:
+  inputs: 
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
