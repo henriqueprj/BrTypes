@@ -10,9 +10,8 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- script: |
+- script:
   dotnet build --configuration $(buildConfiguration)
-  dotnet test test/BrTypes.tests --configuration $(buildConfiguration) --logger trx
 
 - task: PublishTestResults@2
   inputs:
