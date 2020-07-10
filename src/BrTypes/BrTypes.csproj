@@ -1,23 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <LangVersion>7.2</LangVersion>
-    <TargetFrameworks>netcoreapp2.0;netstandard1.0;</TargetFrameworks>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <Product>BrTypes</Product>
     <PackageId>BrTypes</PackageId>
     <PackageTags>brasil;brazil;cpf;cnpj;cnh;renavam;inscrição estadual</PackageTags>
     <Version>0.0.1</Version>
     <Authors>Henrique Ribeiro</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
-    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
-  </ItemGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
-    <AssemblyTitle>BrTypes .NET Standard 1.0</AssemblyTitle>
-    <DefineConstants>NETSTANDARD1_0</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <AssemblyTitle>Json.NET .NET Standard 2.0</AssemblyTitle>
-    <DefineConstants>NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
 </Project>

@@ -12,7 +12,7 @@ namespace BrTypes.Tests
         {
             var cpfInvalido = CpfUtils.GerarCpfComDigitosInvalidos();
             
-            Action act = () => new Cpf(cpfInvalido);
+            Action act = () => Cpf.Parse(cpfInvalido);
             act.Should().ThrowExactly<CpfInvalidoException>();
         }
         
@@ -29,7 +29,7 @@ namespace BrTypes.Tests
         [InlineData("99999999999")]
         public void Cpf_digitos_iguais_deve_tratar_como_invalido(string numero)
         {
-            Action act = () => new Cpf(numero);
+            Action act = () => Cpf.Parse(numero);
 
             act.Should().ThrowExactly<CpfInvalidoException>();
         }
@@ -39,7 +39,7 @@ namespace BrTypes.Tests
         [InlineData("61709754079")]
         public void Deve_ignorar_formatacao_padrao_para_cpf_valido(string numero)
         {
-            Action act = () => new Cpf(numero);
+            Action act = () => Cpf.Parse(numero);
             act.Should().NotThrow<CpfInvalidoException>();
         }
 
@@ -49,7 +49,7 @@ namespace BrTypes.Tests
         [InlineData("18171528074", "181715280")]
         public void Cpf_base_deve_ser_obtido_com_sucesso(string cpfCompleto, string cpfBase)
         {
-            var cpf = new Cpf(cpfCompleto);
+            var cpf = Cpf.Parse(cpfCompleto);
             cpf.Base.Should().Be(cpfBase);
         }
 
@@ -59,8 +59,8 @@ namespace BrTypes.Tests
         [InlineData("18171528074", "74")]
         public void Cpf_deve_retornar_digitos_verificadores_corretamente(string cpfCompleto, string dv)
         {
-            var cpf = new Cpf(cpfCompleto);
-            cpf.DigitosVerificadores.Should().Be(dv);
+            var cpf = Cpf.Parse(cpfCompleto);
+            cpf.DV.Should().Be(dv);
         }
 
         [Fact]
@@ -68,8 +68,8 @@ namespace BrTypes.Tests
         {
             var numero = CpfUtils.GerarCpf();
             
-            var cpf1 = new Cpf(numero);
-            var cpf2 = new Cpf(numero);
+            var cpf1 = Cpf.Parse(numero);
+            var cpf2 = Cpf.Parse(numero);
 
             cpf1.Should().Be(cpf2);
             
@@ -83,23 +83,22 @@ namespace BrTypes.Tests
             var cpfComMascara = CpfUtils.GerarCpf(comMascara: true);
             var cpfSemMascara = CpfUtils.RemoverMascara(cpfComMascara);
 
-            var cpf = new Cpf(cpfComMascara);
+            var cpf = Cpf.Parse(cpfComMascara);
             cpf.ToString().Should().Be(cpfSemMascara);
         }
 
         [Fact]
         public void Deve_formatar_cpf_com_estilo_Padrao()
         {
-            var cpf = new Cpf("61709754079");
+            var cpf = Cpf.Parse("61709754079");
             cpf.ToString(EstiloFormatacaoCpf.Padrao).Should().Be("617.097.540-79");
         }
         
         [Fact]
         public void Deve_formatar_cpf_com_estilo_Nenhum()
         {
-            var cpf = new Cpf("617.097.540-79");
+            var cpf = Cpf.Parse("617.097.540-79");
             cpf.ToString(EstiloFormatacaoCpf.Nenhum).Should().Be("61709754079");
         }
-        
     }
 }

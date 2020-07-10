@@ -17,7 +17,7 @@ namespace BrTypes.Converters
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             if (value is string valueString)
-                return new Cpf(valueString);
+                return Cpf.Parse(valueString);
 
             return base.ConvertFrom(context, culture, value);
         }

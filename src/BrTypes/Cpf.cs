@@ -8,83 +8,33 @@ namespace BrTypes
     /// Representa um CPF.
     /// </summary>
     [TypeConverter(typeof(CpfConverter))]
-    public sealed class Cpf : IComparable, IComparable<Cpf>, IEquatable<Cpf>
+    public readonly struct Cpf : IEquatable<Cpf>
     {
         private readonly string _numero;
 
-        /// <summary>
-        /// Inicializa uma nova instância de <see cref="Cpf"/>.
-        /// </summary>
-        /// <param name="numero">número do CPF</param>
-        /// <exception cref="ArgumentNullException">Caso <paramref name="numero"/> seja vazio ou null.</exception>
-        /// <exception cref="CpfInvalidoException">Caso o <paramref name="numero"/> seja válido.</exception>
-        public Cpf(string numero)
-        {
-            if (numero == null) throw new ArgumentNullException(nameof(numero));
+        public static readonly Cpf Empty = new Cpf();
 
-            if (!Validar(numero, true, out var chars))
-                throw new CpfInvalidoException(numero);
-            
-            _numero = new string(chars);
+        private Cpf(string cpfValido)
+        {
+            _numero = cpfValido;
         }
 
-        private Cpf(char[] cpf)
-            => _numero = new string(cpf);
-        
         /// <summary>
         /// Retorna o valor base do Cpf (primeiros 9 digitos).
         /// </summary>
-        public string Base
-            => _numero.Substring(0, 9);
+        public string Base => _numero[..9];
 
         /// <summary>
         /// Retorna os digitos verificadores do Cpf.
         /// </summary>
-        public string DigitosVerificadores
-            => _numero.Substring(9, 2);
+        public string DV => _numero[9..];
 
-        public int CompareTo(Cpf other) 
-            => string.Compare(_numero, other?._numero, StringComparison.Ordinal);
-
-        public int CompareTo(object obj)
+        public static Cpf Parse(string s)
         {
-            if (obj == null) return 1;
+            if (!TryParse(s, out var cpfValido))
+                throw new CpfInvalidoException(s);
 
-            if (!(obj is Cpf other))
-                throw new ArgumentException($"Object is not a {typeof(Cpf).Name}");
-
-            return CompareTo(other);
-        }
-
-        public bool Equals(Cpf other) 
-            => _numero.Equals(other?._numero, StringComparison.Ordinal);
-
-        public override bool Equals(object obj) 
-            => CompareTo(obj) == 0;
-
-        public override int GetHashCode() 
-            => _numero.GetHashCode();
-
-        public override string ToString()
-            => ToString(EstiloFormatacaoCpf.Nenhum);
-
-        /// <summary>
-        /// Converte um <see cref="Cpf"/> em <see cref="System.String"/> de acordo com o estilo de formatação informado.
-        /// </summary>
-        /// <param name="estilo">Estilo de formatação</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException">Caso o estilo de formatação informado não seja válido.</exception>
-        public string ToString(EstiloFormatacaoCpf estilo)
-        {
-            switch (estilo)
-            {
-                case EstiloFormatacaoCpf.Nenhum:
-                    return _numero;
-                case EstiloFormatacaoCpf.Padrao:
-                    return $"{_numero.Substring(0, 3)}.{_numero.Substring(3, 3)}.{_numero.Substring(6, 3)}-{_numero.Substring(9, 2)}";
-                default:
-                    throw new ArgumentException("O estilo informado não é válido");
-            }
+            return cpfValido;
         }
 
         /// <summary>
@@ -95,13 +45,13 @@ namespace BrTypes
         /// <returns></returns>
         public static bool TryParse(string s, out Cpf cpf)
         {
-            if (!Validar(s, true, out var chars))
+            if (!Validar(s, true, out var cpfValido))
             {
                 cpf = default;
                 return false;
             }
 
-            cpf = new Cpf(chars);
+            cpf = new Cpf(cpfValido);
             return true;
         }
 
@@ -111,30 +61,21 @@ namespace BrTypes
         /// <param name="numero">Valor representando um Cpf.</param>
         /// <returns></returns>
         public static bool IsValid(string numero) => Validar(numero, false, out _);
-        
+
         public static bool operator ==(Cpf left, Cpf right)
         {
-            if (ReferenceEquals(left, right))
-                return true;
-
-            if (ReferenceEquals(left, null))
-                return false;
-
-            if (ReferenceEquals(right, null))
-                return false;
-            
-            return left._numero == right._numero;
+            return string.Equals(left._numero, right._numero, StringComparison.Ordinal);
         }
-        
+
         public static bool operator !=(Cpf left, Cpf right)
         {
             return !(left == right);
         }
-        
+
         public static implicit operator Cpf(string numero)
             => new Cpf(numero);
 
-        private static bool Validar(string numero, bool returnValue, out char[] cpf)
+        private static bool Validar(string numero, bool returnValue, out string cpf)
         {
             var pos = 0;
             var ultimoChar = '0';
@@ -143,19 +84,15 @@ namespace BrTypes
             var totalDigito2 = 0;
             var dv1Calculado = 0;
 
-            char[] digitos = null;
-            if (returnValue)
-                digitos = new char[11];
-
+            Span<char> digitos = stackalloc char[11];
             cpf = default;
-            
+
             foreach (var c in numero)
             {
                 if (c == '.' || c == '-')
                     continue;
-                
-                var digito = c - '0';
 
+                var digito = c - '0';
                 if (digito < 0 || digito > 9)
                     return false;
 
@@ -187,19 +124,50 @@ namespace BrTypes
                         return false;
                 }
 
-                if (returnValue)
-                    digitos[pos] = c;
-                
+                digitos[pos] = c;
                 pos++;
             }
 
             if (todosCharsIdenticos)
                 return false;
-            
+
             if (returnValue)
-                cpf = digitos;
-            
+            {
+                cpf = numero.Length == 11 ? numero : new string(digitos);
+            }
+
             return true;
         }
+
+        public bool Equals(Cpf other)
+        {
+            return string.Equals(_numero, other._numero);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Cpf other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return _numero != null ? _numero.GetHashCode() : 0;
+        }
+
+        public override string ToString() => _numero ?? string.Empty;
+
+        /// <summary>
+        /// Converte um <see cref="Cpf"/> em <see cref="System.String"/> de acordo com o estilo de formatação informado.
+        /// </summary>
+        /// <param name="estilo">Estilo de formatação</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">Caso o estilo de formatação informado não seja válido.</exception>
+        public string ToString(EstiloFormatacaoCpf estilo) =>
+            estilo switch
+            {
+                EstiloFormatacaoCpf.Nenhum => _numero ?? string.Empty,
+                EstiloFormatacaoCpf.Padrao => Masks.Apply(Masks.Cpf, _numero),
+                _ => throw new ArgumentException("O estilo informado não é válido")
+            };
     }
 }

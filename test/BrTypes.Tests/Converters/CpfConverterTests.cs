@@ -13,7 +13,7 @@ namespace BrTypes.Tests.Converters
         public void Deve_serializar_para_string()
         {
             var cpfString = CpfUtils.GerarCpf();
-            var cpf = new Cpf(cpfString);
+            var cpf = Cpf.Parse(cpfString);
 
             var json = JsonConvert.SerializeObject(cpf);
 
