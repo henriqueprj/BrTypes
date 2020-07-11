@@ -72,8 +72,7 @@ namespace BrTypes
             return !(left == right);
         }
 
-        public static implicit operator Cpf(string numero)
-            => new Cpf(numero);
+        public static implicit operator Cpf(string numero) => Parse(numero);
 
         private static bool Validar(string numero, bool returnValue, out string cpf)
         {

@@ -42,6 +42,16 @@ namespace BrTypes.Tests
             Action act = () => Cpf.Parse(numero);
             act.Should().NotThrow<CpfInvalidoException>();
         }
+        
+        [Fact]
+        public void Cpf_deve_ser_validado_atraves_da_conversao_implicita()
+        {
+            Action conversaoValida = () => { Cpf cpf1 = CpfUtils.GerarCpf(); };
+            Action conversaoInvalida = () => { Cpf cpf1 = CpfUtils.GerarCpfComDigitosInvalidos(); };
+            
+            conversaoValida.Should().NotThrow<CpfInvalidoException>();
+            conversaoInvalida.Should().ThrowExactly<CpfInvalidoException>();
+        }
 
         [Theory]
         [InlineData("61709754079", "617097540")]
@@ -62,7 +72,7 @@ namespace BrTypes.Tests
             var cpf = Cpf.Parse(cpfCompleto);
             cpf.DV.Should().Be(dv);
         }
-
+        
         [Fact]
         public void Cpfs_com_mesmo_numero_devem_ser_considerados_iguais()
         {
