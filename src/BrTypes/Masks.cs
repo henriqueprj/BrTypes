@@ -5,34 +5,32 @@ namespace BrTypes
 {
     public static class Masks
     {
-        public const string Cpf = "###.###.###-##";
-        public const string Cnpj = "##.###.###/####-##";
+        private const char PlaceHolder = '#';
         
         /// <summary>
         /// Apply an specified mask to an specified unmasked value.
         /// </summary>
         /// <remarks>
         /// Apply will replace each '#' in the mask by its respective character value.
-        /// Any other character in mask will considered as a mask character.
+        /// Any other character in mask will be considered as a mask character.
         /// </remarks>
         /// <param name="mask">Mask to be applied to a value</param>
         /// <param name="value">Unmasked value</param>
-        /// <returns>Value with a mask applied</returns>
+        /// <returns>Value with a mask applied to it</returns>
         public static string Apply(string mask, string value)
         {
             if (string.IsNullOrEmpty(mask))
-                throw new ArgumentNullException(nameof(mask));
+                throw new ArgumentNullException(nameof(mask), "Parameter 'mask' should not be null");
+            
+            if (value == null)
+                return null;
 
             Span<char> maskedValue = stackalloc char[mask.Length];
-            var valueIndex = 0;
-            for (var i = 0; i < mask.Length; i++)
-            {
-                if (mask[i] == '#')
-                    maskedValue[i] = value[valueIndex++];
-                else
-                    maskedValue[i] = mask[i];
-            }
-            return new string(maskedValue);
+            int valueIndex = 0;
+            int i;
+            for (i = 0; i < mask.Length && valueIndex < value.Length; i++)
+                maskedValue[i] = mask[i] == PlaceHolder ? value[valueIndex++] : mask[i];
+            return new string(maskedValue[..i]);
         }
     }
 }

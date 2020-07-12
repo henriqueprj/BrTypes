@@ -11,7 +11,9 @@ namespace BrTypes
     public readonly struct Cpf : IEquatable<Cpf>
     {
         private readonly string _numero;
+        private const string MascaraPadrao = "###.###.###-##";
 
+        
         public static readonly Cpf Empty = new Cpf();
 
         private Cpf(string cpfValido)
@@ -165,7 +167,7 @@ namespace BrTypes
             estilo switch
             {
                 EstiloFormatacaoCpf.Nenhum => _numero ?? string.Empty,
-                EstiloFormatacaoCpf.Padrao => Masks.Apply(Masks.Cpf, _numero),
+                EstiloFormatacaoCpf.Padrao => Masks.Apply(MascaraPadrao, _numero),
                 _ => throw new ArgumentException("O estilo informado não é válido")
             };
     }
