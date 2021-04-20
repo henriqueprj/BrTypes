@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using BrTypes.Converters;
 
 namespace BrTypes
@@ -13,8 +14,8 @@ namespace BrTypes
         private readonly string _numero;
         private const string MascaraPadrao = "###.###.###-##";
 
-        
-        public static readonly Cpf Empty = new Cpf();
+
+        public static readonly Cpf Empty = default;
 
         private Cpf(string cpfValido)
         {
@@ -24,12 +25,12 @@ namespace BrTypes
         /// <summary>
         /// Retorna o valor base do Cpf (primeiros 9 digitos).
         /// </summary>
-        public string Base => _numero[..9];
+        public string Base => _numero.Substring(0, 9);
 
         /// <summary>
         /// Retorna os digitos verificadores do Cpf.
         /// </summary>
-        public string DV => _numero[9..];
+        public string DV => _numero.Substring(9, 2);
 
         public static Cpf Parse(string s)
         {
@@ -45,15 +46,16 @@ namespace BrTypes
         /// <param name="s"></param>
         /// <param name="cpf"></param>
         /// <returns></returns>
-        public static bool TryParse(string s, out Cpf cpf)
+        public static bool TryParse(string? s, out Cpf cpf)
         {
             if (!Validar(s, true, out var cpfValido))
             {
                 cpf = default;
                 return false;
             }
+            
 
-            cpf = new Cpf(cpfValido);
+            cpf = new Cpf(cpfValido!);
             return true;
         }
 
@@ -76,8 +78,14 @@ namespace BrTypes
 
         public static implicit operator Cpf(string numero) => Parse(numero);
 
-        private static bool Validar(string numero, bool returnValue, out string cpf)
+        private static bool Validar([NotNullWhen(true)]string? numero, bool returnValue, out string? cpf)
         {
+            if (numero == null)
+            {
+                cpf = default;
+                return false;
+            }
+            
             var pos = 0;
             var ultimoChar = '0';
             var todosCharsIdenticos = true;
@@ -134,7 +142,9 @@ namespace BrTypes
 
             if (returnValue)
             {
-                cpf = numero.Length == 11 ? numero : new string(digitos);
+                cpf = numero.Length == 11
+                    ? numero // prevent new allocation of string
+                    : digitos.ToString();
             }
 
             return true;
@@ -145,7 +155,7 @@ namespace BrTypes
             return string.Equals(_numero, other._numero);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)]object? obj)
         {
             return obj is Cpf other && Equals(other);
         }

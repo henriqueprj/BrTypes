@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace BrTypes
@@ -17,10 +18,11 @@ namespace BrTypes
         /// <param name="mask">Mask to be applied to a value</param>
         /// <param name="value">Unmasked value</param>
         /// <returns>Value with a mask applied to it</returns>
-        public static string Apply(string mask, string value)
+        [return: NotNullIfNotNull("value")]
+        public static string? Apply([NotNull]string mask, [NotNullWhen(true)] string? value)
         {
             if (string.IsNullOrEmpty(mask))
-                throw new ArgumentNullException(nameof(mask), "Parameter 'mask' should not be null");
+                throw new ArgumentNullException(nameof(mask), $"Parameter '{nameof(mask)}' should not be null");
             
             if (value == null)
                 return null;
@@ -30,7 +32,7 @@ namespace BrTypes
             int i;
             for (i = 0; i < mask.Length && valueIndex < value.Length; i++)
                 maskedValue[i] = mask[i] == PlaceHolder ? value[valueIndex++] : mask[i];
-            return new string(maskedValue[..i]);
+            return maskedValue.Slice(0, i).ToString();
         }
     }
 }

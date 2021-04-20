@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using BenchmarkDotNet.Running;
 using BrTypes;
 
 namespace ConsoleTests
@@ -8,16 +9,27 @@ namespace ConsoleTests
     {
         static void Main(string[] args)
         {
+            RunBenchmarks();
+            // RunSimpleTests();
+        }
+
+        private static void RunBenchmarks()
+        {
+            //var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cpf.CpfVsCpf2Benchmark>();
+            var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cnpj.CnpjBenchmark>();
+        }
+
+        private static void RunSimpleTests()
+        {
             // var cpf1 = Cpf.Parse("61709754079");
             // var cpf2 = Cpf.Parse("27823643081");
             // var cpf3 = Cpf.Parse("18171528074");
 
-            
             var sw = new Stopwatch();
             var before2 = GC.CollectionCount(2);
             var before1 = GC.CollectionCount(1);
             var before0 = GC.CollectionCount(0);
-            
+
             sw.Start();
             for (int i = 0; i < 1_000_000; i++)
             {
