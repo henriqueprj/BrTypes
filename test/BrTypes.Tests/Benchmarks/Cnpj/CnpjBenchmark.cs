@@ -37,5 +37,12 @@ namespace BrTypes.Tests.Benchmarks.Cnpj
             var isValid = BrTypes.Cnpj.TryParse4(Value, out var cnpj);
             return (isValid, cnpj);
         }
+        
+        [Benchmark]
+        public (bool, BrTypes.Cnpj) TryParse5()
+        {
+            var isValid = BrTypes.Cnpj.TryParse5(Value, out var cnpj);
+            return (isValid, cnpj);
+        }
     }
 }
