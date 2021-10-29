@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Xml.Linq;
 
 namespace BrTypes
 {
-    public static class Digits
+    public static class DigitZ
     {
         public static bool Fill(Span<int> digits, string s)
         {
@@ -183,6 +184,183 @@ namespace BrTypes
                 digitIndex = digitIndex + Convert.ToInt32(digits[digitIndex] is >= 0 and <= 9);
             }
 
+            return digitIndex == digits.Length;
+        }
+        
+        public static bool Fill5(Span<int> digits, string s)
+        {
+            var digitIndex = 0;
+
+            foreach (var c in s)
+            {
+                var digit = c - '0';
+                if (digit is < 0 or > 9)
+                    continue;
+                
+                digits[digitIndex] = digit;
+                digitIndex++;
+            }
+            
+            return digitIndex == digits.Length;
+        }
+        
+        public static bool Fill51(Span<int> digits, string s)
+        {
+            var digitIndex = 0;
+
+            foreach (var c in s)
+            {
+                var digit = c - '0';
+                if (digit is < 0 or > 9)
+                    continue;
+
+                if (digitIndex == digits.Length)
+                    return false;
+                
+                digits[digitIndex] = digit;
+                digitIndex++;
+            }
+            
+            return digitIndex == digits.Length;
+        }
+        
+        public static bool Fill52(Span<int> digits, string s)
+        {
+            var digitIndex = 0;
+
+            for (var i = 0; i < s.Length; i++)
+            {
+                var digit = s[i] - '0';
+                if (digit is < 0 or > 9)
+                    continue;
+
+                if (digitIndex == digits.Length)
+                    return false;
+                
+                digits[digitIndex] = digit;
+                digitIndex++;
+            }
+            
+            return digitIndex == digits.Length;
+        }
+        
+        public static bool Fill53(Span<int> digits, string s)
+        {
+            var digitIndex = 0;
+
+            for (var i = 0; i < s.Length; i++)
+            {
+                var c = s[i];
+                var digit = c - '0';
+                if (digit is < 0 or > 9)
+                    continue;
+
+                if (digitIndex == digits.Length)
+                    return false;
+                
+                digits[digitIndex] = digit;
+                digitIndex++;
+            }
+            
+            return digitIndex == digits.Length;
+        }
+        
+        public static bool Fill54(Span<int> digits, string s)
+        {
+            var digitIndex = 0;
+
+            foreach (var c in s)
+            {
+                var digit = c - '0';
+                if (digit is < 0 or > 9)
+                    continue;
+
+                if (digitIndex == digits.Length)
+                    return false;
+                
+                digits[digitIndex] = digit;
+                digitIndex = digitIndex + 1;
+            }
+            
+            return digitIndex == digits.Length;
+        }
+        
+        public static bool Fill55(Span<int> digits, string s)
+        {
+            var digitIndex = 0;
+
+            foreach (var c in s)
+            {
+                var digit = c - '0';
+                if (digit is < 0 or > 9)
+                    continue;
+
+                if (digitIndex == digits.Length)
+                    return false;
+                
+                digits[digitIndex] = digit;
+                digitIndex += 1;
+            }
+            
+            return digitIndex == digits.Length;
+        }
+        
+        public static bool Fill56(Span<int> digits, string s)
+        {
+            var digitIndex = 0;
+
+            foreach (var c in s)
+            {
+                var digit = c - '0';
+                if (digit is < 0 or > 9)
+                    continue;
+
+                if (digitIndex == digits.Length)
+                    return false;
+                
+                digits[digitIndex++] = digit;
+            }
+            
+            return digitIndex == digits.Length;
+        }
+        
+
+        
+    }
+
+    public interface IDigitsFiller
+    {
+        bool TryParse(string s, Span<int> digits);
+    }
+
+    public class Digits : IDigitsFiller
+    {
+        public static readonly Digits Default = new();
+
+        private Digits()
+        {
+        }
+        
+        public bool TryParse(string s, Span<int> digits)
+        {
+            if (string.IsNullOrEmpty(s))
+                throw new ArgumentNullException(nameof(s), "s must neither be null or empty");
+            
+            var digitIndex = 0;
+
+            foreach (var c in s)
+            {
+                var digit = c - '0';
+                if (digit is < 0 or > 9)
+                    continue;
+
+                if (digitIndex == digits.Length)
+                    return false;
+                
+                digits[digitIndex] = digit;
+                digitIndex++;
+            }
+            
             return digitIndex == digits.Length;
         }
     }

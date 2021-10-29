@@ -16,15 +16,15 @@ namespace ConsoleTests
         private static void RunBenchmarks()
         {
             //var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cpf.CpfVsCpf2Benchmark>();
-            // var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cnpj.CnpjBenchmark>();
-            var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Digits.DigitsBenchmark>();
+            var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cnpj.CnpjBenchmark>();
+            //var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Digits.DigitsBenchmark>();
         }
 
         private static void RunSimpleTests()
         {
             Span<int> digits = stackalloc int[2];
             //var b1 = BrTypes.Digits.Fill(digits, "07.245.465/0001-51", 14);
-            var b2 = BrTypes.Digits.Fill2(digits, "1.2");
+            var b2 = BrTypes.DigitZ.Fill2(digits, "1.2");
             //Console.WriteLine(b1);
             Console.WriteLine(b2);
             
