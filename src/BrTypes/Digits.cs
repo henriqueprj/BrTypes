@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Xml.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BrTypes
 {
@@ -330,7 +330,7 @@ namespace BrTypes
 
     public interface IDigitsFiller
     {
-        bool TryParse(string s, Span<int> digits);
+        bool TryParse([NotNullWhen(true)]string? s, Span<int> digits);
     }
 
     public class Digits : IDigitsFiller
@@ -341,14 +341,14 @@ namespace BrTypes
         {
         }
         
-        public bool TryParse(string s, Span<int> digits)
+        public bool TryParse([NotNullWhen(true)]string? s, Span<int> digits)
         {
             if (string.IsNullOrEmpty(s))
                 throw new ArgumentNullException(nameof(s), "s must neither be null or empty");
             
             var digitIndex = 0;
 
-            foreach (var c in s)
+            foreach (var c in s!)
             {
                 var digit = c - '0';
                 if (digit is < 0 or > 9)

@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
 namespace BrTypes
@@ -104,6 +103,7 @@ namespace BrTypes
                 digits[6] * 100 +
                 digits[7] * 10 +
                 digits[8];
+            
             result = new Cpf2(cpfBase);
             return true;
         }

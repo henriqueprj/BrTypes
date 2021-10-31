@@ -6,28 +6,33 @@ namespace BrTypes
 {
     public readonly struct Cnpj : IEquatable<Cnpj>
     {
-        private static readonly int[] Multiplier1 = { 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-        private static readonly int[] Multiplier2 = { 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 };
-
+        private const string Mask = "##.###.###/####-##";
         private const int CnpjLength = 14;
-
-        private readonly long _number;
-
-        public static readonly Cnpj Empty = default;
         
-        private Cnpj(long number)
-        {
-            _number = number;
-        }
-        
-        public static Cnpj Parse(string? s)
-        {
-            if (TryParse(s, out var cnpj))
-                return cnpj;
+        private readonly long _value;
 
-            throw new CnpjInvalidoException(s);
+        private Cnpj(long value)
+        {
+            _value = value;
         }
 
+        public static Cnpj Parse(string s)
+        {
+            if (s is null)
+                throw new ArgumentNullException(nameof(s));
+            
+            if (!TryParse(s, out var cnpj))
+                throw new CnpjInvalidoException(s);    
+                
+            return cnpj;
+        }
+        
+        /// <summary>
+        /// Converte uma string em Cnpj e retorna o valor indicando se a conversão foi realizada com sucesso.
+        /// </summary>
+        /// <param name="s">Representação string do CNPJ</param>
+        /// <param name="result">Estrutura de dados representando o CNPJ convertido</param>
+        /// <returns>True caso a conversão tenha ocorrido com sucesso.</returns>
         public static bool TryParse([NotNullWhen(true)]string? s, out Cnpj result)
         {
             if (s == null)
@@ -36,470 +41,6 @@ namespace BrTypes
                 return false;
             }
             
-            Span<int> digits = stackalloc int[CnpjLength + 1]; // WTF? 15? Isn't CNPJ a 14 digits length? Yes, one more 
-                                                               // for length check.
-            var digitIndex = -1;
-
-            for (var i = 0; i < s.Length && digitIndex < digits.Length; i++)
-            {
-                var digit = s[i] - '0';
-                if (digit < 0 || digit > 9)
-                    continue;
-
-                digits[++digitIndex] = digit;
-            }
-
-            // Parsed more or less than 14 digits?
-            if (digitIndex != CnpjLength - 1)
-            {
-                result = default;
-                return false;
-            }
-            
-            if (AllSame(digits.Slice(0, 14)))
-            {
-                result = default;
-                return false;
-            }
-
-            var dv = CalculateDV(digits.Slice(0, 12));
-            
-            if (dv != (digits[12] * 10 + digits[13]))
-            {
-                result = default;
-                return false;
-            }
-
-            long number =
-                digits[0]  * 10000000000000L +
-                digits[1]  * 1000000000000L +
-                digits[2]  * 100000000000L +
-                digits[3]  * 10000000000L +
-                digits[4]  * 1000000000L +
-                digits[5]  * 100000000L +
-                digits[6]  * 10000000L +
-                digits[7]  * 1000000L +
-                digits[8]  * 100000L +
-                digits[9]  * 10000L +
-                digits[10] * 1000L +
-                digits[11] * 100L +
-                digits[12] * 10L +
-                digits[13];
-
-            result = new Cnpj(number);
-            return true;
-        }
-        
-        public static bool TryParse2([NotNullWhen(true)]string? s, out Cnpj result)
-        {
-            if (s == null)
-            {
-                result = default;
-                return false;
-            }
-            
-            Span<int> digits = stackalloc int[CnpjLength]; // WTF? 15? Isn't CNPJ a 14 digits length? Yes, one more 
-            // for length check.
-            var digitIndex = -1;
-            var s1 = 0;
-            var s2 = 0;
-            //var allSame = true;
-            
-            for (var i = 0; i < s.Length; i++)
-            {
-                var digit = s[i] - '0';
-                if (digit < 0 || digit > 9)
-                    continue;
-                
-                ++digitIndex;
-
-                if (digitIndex < 12)
-                {
-                    s1 += digit * Multiplier1[digitIndex];
-                    s2 += digit * Multiplier2[digitIndex];    
-                }
-                else if (digitIndex >= CnpjLength)
-                {
-                    result = default;
-                    return false;
-                }
-
-                digits[digitIndex] = digit;
-            }
-
-            // Parsed more or less than 14 digits?
-            if (digitIndex != CnpjLength - 1)
-            {
-                result = default;
-                return false;
-            }
-            
-            if (AllSame(digits))
-            {
-                result = default;
-                return false;
-            }
-
-            var dv1 = Mod11(s1);
-            var dv2 = Mod11(s2 + (dv1 * 2));
-            
-            if (dv1 != digits[12] || dv2 != digits[13])
-            {
-                result = default;
-                return false;
-            }
-
-            long number =
-                digits[0]  * 10000000000000L +
-                digits[1]  * 1000000000000L +
-                digits[2]  * 100000000000L +
-                digits[3]  * 10000000000L +
-                digits[4]  * 1000000000L +
-                digits[5]  * 100000000L +
-                digits[6]  * 10000000L +
-                digits[7]  * 1000000L +
-                digits[8]  * 100000L +
-                digits[9]  * 10000L +
-                digits[10] * 1000L +
-                digits[11] * 100L +
-                digits[12] * 10L +
-                digits[13];
-
-            result = new Cnpj(number);
-            return true;
-        }
-
-        private static readonly int[] W1 = { 5, 4, 3, 2, 9, 8, 7, 6 };
-        private static readonly int[] W2 = { 6, 5, 4, 3, 2, 9, 8, 7 };
-        
-        public static bool TryParse3([NotNullWhen(true)]string? s, out Cnpj result)
-        {
-            if (s == null)
-            {
-                result = default;
-                return false;
-            }
-            
-            Span<int> digits = stackalloc int[CnpjLength]; // WTF? 15? Isn't CNPJ a 14 digits length? Yes, one more 
-            // for length check.
-            var digitIndex = -1;
-            var s1 = 0;
-            var s2 = 0;
-            //var allSame = true;
-            //var multiplier = 5;
-            
-            for (var i = 0; i < s.Length; i++)
-            {
-                var digit = s[i] - '0';
-                if (digit < 0 || digit > 9)
-                    continue;
-                
-                ++digitIndex;
-
-                if (digitIndex < 12)
-                {
-                    // https://stackoverflow.com/a/11040718/246644
-                    // Fastest modulus then denominator is power of 2 (this case)
-                    s1 += digit * W2[(digitIndex + 1) & 7]; // 7 because of (W2.Length - 1) equals 7 in this case
-                    s2 += digit * W2[digitIndex & 7];
-                    
-                    // s1 += digit * multiplier;
-                    // s2 += digit * (multiplier == 9 ? 2 : multiplier + 1);
-                    //
-                    // multiplier = multiplier > 2 ? multiplier - 1 : 9;
-                }
-                else if (digitIndex >= CnpjLength)
-                {
-                    result = default;
-                    return false;
-                }
-
-                digits[digitIndex] = digit;
-            }
-
-            // Parsed more or less than 14 digits?
-            if (digitIndex != CnpjLength - 1)
-            {
-                result = default;
-                return false;
-            }
-            
-            if (AllSame(digits))
-            {
-                result = default;
-                return false;
-            }
-
-            var dv1 = Mod11(s1);
-            var dv2 = Mod11(s2 + (dv1 * 2));
-            
-            if (dv1 != digits[12] || dv2 != digits[13])
-            {
-                result = default;
-                return false;
-            }
-
-            long number =
-                digits[0]  * 10000000000000L +
-                digits[1]  * 1000000000000L +
-                digits[2]  * 100000000000L +
-                digits[3]  * 10000000000L +
-                digits[4]  * 1000000000L +
-                digits[5]  * 100000000L +
-                digits[6]  * 10000000L +
-                digits[7]  * 1000000L +
-                digits[8]  * 100000L +
-                digits[9]  * 10000L +
-                digits[10] * 1000L +
-                digits[11] * 100L +
-                digits[12] * 10L +
-                digits[13];
-
-            result = new Cnpj(number);
-            return true;
-        }
-        
-        public static bool TryParse4([NotNullWhen(true)]string? s, out Cnpj result)
-        {
-            if (s == null)
-            {
-                result = default;
-                return false;
-            }
-            
-            Span<int> digits = stackalloc int[CnpjLength]; // WTF? 15? Isn't CNPJ a 14 digits length? Yes, one more 
-            // for length check.
-            var digitIndex = -1;
-            var s1 = 0;
-            var s2 = 0;
-            var multiplier = 5;
-            
-            for (var i = 0; i < s.Length; i++)
-            {
-                var digit = s[i] - '0';
-                if (digit < 0 || digit > 9)
-                    continue;
-                
-                ++digitIndex;
-
-                if (digitIndex < 12)
-                {
-                    s1 += digit * multiplier;
-                    s2 += digit * (multiplier == 9 ? 2 : multiplier + 1);
-                    
-                    multiplier = multiplier > 2 ? multiplier - 1 : 9;
-                }
-                else if (digitIndex >= CnpjLength)
-                {
-                    result = default;
-                    return false;
-                }
-
-                digits[digitIndex] = digit;
-            }
-
-            // Parsed more or less than 14 digits?
-            if (digitIndex != CnpjLength - 1)
-            {
-                result = default;
-                return false;
-            }
-            
-            if (AllSame(digits))
-            {
-                result = default;
-                return false;
-            }
-
-            var dv1 = Mod11(s1);
-            var dv2 = Mod11(s2 + (dv1 * 2));
-            
-            if (dv1 != digits[12] || dv2 != digits[13])
-            {
-                result = default;
-                return false;
-            }
-
-            long number =
-                digits[0]  * 10000000000000L +
-                digits[1]  * 1000000000000L +
-                digits[2]  * 100000000000L +
-                digits[3]  * 10000000000L +
-                digits[4]  * 1000000000L +
-                digits[5]  * 100000000L +
-                digits[6]  * 10000000L +
-                digits[7]  * 1000000L +
-                digits[8]  * 100000L +
-                digits[9]  * 10000L +
-                digits[10] * 1000L +
-                digits[11] * 100L +
-                digits[12] * 10L +
-                digits[13];
-
-            result = new Cnpj(number);
-            return true;
-        }
-        
-        public static bool TryParse41([NotNullWhen(true)]string? s, out Cnpj result)
-        {
-            if (s == null)
-            {
-                result = default;
-                return false;
-            }
-            
-            Span<int> digits = stackalloc int[CnpjLength]; // WTF? 15? Isn't CNPJ a 14 digits length? Yes, one more 
-            // for length check.
-            var digitIndex = -1;
-            var s1 = 0;
-            var s2 = 0;
-            var multiplier = 5;
-            
-            foreach (var c in s)
-            {
-                var digit = c - '0';
-                if (digit is < 0 or > 9)
-                    continue;
-                
-                ++digitIndex;
-
-                if (digitIndex < 12)
-                {
-                    s1 += digit * multiplier;
-                    s2 += digit * (multiplier == 9 ? 2 : multiplier + 1);
-                    
-                    multiplier = multiplier > 2 ? multiplier - 1 : 9;
-                }
-                else if (digitIndex >= CnpjLength)
-                {
-                    result = default;
-                    return false;
-                }
-
-                digits[digitIndex] = digit;
-            }
-
-            // Parsed more or less than 14 digits?
-            if (digitIndex != CnpjLength - 1)
-            {
-                result = default;
-                return false;
-            }
-            
-            if (AllSame(digits))
-            {
-                result = default;
-                return false;
-            }
-
-            var dv1 = Mod11(s1);
-            var dv2 = Mod11(s2 + (dv1 * 2));
-            
-            if (dv1 != digits[12] || dv2 != digits[13])
-            {
-                result = default;
-                return false;
-            }
-
-            long number =
-                digits[0]  * 10000000000000L +
-                digits[1]  * 1000000000000L +
-                digits[2]  * 100000000000L +
-                digits[3]  * 10000000000L +
-                digits[4]  * 1000000000L +
-                digits[5]  * 100000000L +
-                digits[6]  * 10000000L +
-                digits[7]  * 1000000L +
-                digits[8]  * 100000L +
-                digits[9]  * 10000L +
-                digits[10] * 1000L +
-                digits[11] * 100L +
-                digits[12] * 10L +
-                digits[13];
-
-            result = new Cnpj(number);
-            return true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int PreviousMultiplier(int multiplier) => multiplier > 2 ? multiplier - 1 : 9;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int NextMultiplier(int multiplier) => multiplier == 9 ? 2 : multiplier + 1;
-        
-        public static bool TryParse5([NotNullWhen(true)]string? s, out Cnpj result)
-        {
-            if (s == null)
-            {
-                result = default;
-                return false;
-            }
-            
-            Span<int> digits = stackalloc int[CnpjLength + 1]; // WTF? 15? Isn't CNPJ a 14 digits length? Yes, one more 
-            // for length check.
-            var digitIndex = -1;
-
-            for (var i = 0; i < s.Length && digitIndex < digits.Length; i++)
-            {
-                var digit = s[i] - '0';
-                // if (digit < 0 || digit > 9)
-                //     continue;
-                
-                var increment = digit < 0 || digit > 9 ? 0 : 1;
-                digitIndex += increment;
-
-                digits[digitIndex] = digit;
-            }
-
-            // Parsed more or less than 14 digits?
-            if (digitIndex != CnpjLength - 1)
-            {
-                result = default;
-                return false;
-            }
-            
-            if (AllSame(digits.Slice(0, 14)))
-            {
-                result = default;
-                return false;
-            }
-
-            var dv = CalculateDV(digits.Slice(0, 12));
-            
-            if (dv != (digits[12] * 10 + digits[13]))
-            {
-                result = default;
-                return false;
-            }
-
-            long number =
-                digits[0]  * 10000000000000L +
-                digits[1]  * 1000000000000L +
-                digits[2]  * 100000000000L +
-                digits[3]  * 10000000000L +
-                digits[4]  * 1000000000L +
-                digits[5]  * 100000000L +
-                digits[6]  * 10000000L +
-                digits[7]  * 1000000L +
-                digits[8]  * 100000L +
-                digits[9]  * 10000L +
-                digits[10] * 1000L +
-                digits[11] * 100L +
-                digits[12] * 10L +
-                digits[13];
-
-            result = new Cnpj(number);
-            return true;
-        }
-        
-        public static bool TryParse51([NotNullWhen(true)]string? s, out Cnpj result)
-        {
-            if (s == null)
-            {
-                result = default;
-                return false;
-            }
-            
             Span<int> digits = stackalloc int[CnpjLength]; 
 
             if (!Digits.Default.TryParse(s, digits))
@@ -516,57 +57,7 @@ namespace BrTypes
 
             var dv = CalculateDV(digits.Slice(0, 12));
             
-            if (dv != (digits[12] * 10 + digits[13]))
-            {
-                result = default;
-                return false;
-            }
-
-            long number =
-                digits[0]  * 10000000000000L +
-                digits[1]  * 1000000000000L +
-                digits[2]  * 100000000000L +
-                digits[3]  * 10000000000L +
-                digits[4]  * 1000000000L +
-                digits[5]  * 100000000L +
-                digits[6]  * 10000000L +
-                digits[7]  * 1000000L +
-                digits[8]  * 100000L +
-                digits[9]  * 10000L +
-                digits[10] * 1000L +
-                digits[11] * 100L +
-                digits[12] * 10L +
-                digits[13];
-
-            result = new Cnpj(number);
-            return true;
-        }
-        
-        public static bool TryParse52([NotNullWhen(true)]string? s, out Cnpj result)
-        {
-            if (s == null)
-            {
-                result = default;
-                return false;
-            }
-            
-            Span<int> digits = stackalloc int[CnpjLength]; 
-
-            if (!Digits.Default.TryParse(s, digits))
-            {
-                result = default;
-                return false;
-            }
-
-            if (AllSame(digits))
-            {
-                result = default;
-                return false;
-            }
-
-            var dv = CalculateDV12(digits.Slice(0, 12));
-            
-            if (dv != (digits[12] * 10 + digits[13]))
+            if (dv != digits[12] * 10 + digits[13])
             {
                 result = default;
                 return false;
@@ -592,25 +83,63 @@ namespace BrTypes
             return true;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int CalculateDV(Span<int> digits)
+        public override string ToString()
         {
-            var sum1 = 0;
-            var sum2 = 0;
-            for (int i = 0; i < digits.Length; i++)
-            {
-                sum1 += digits[i] * Multiplier1[i];
-                sum2 += digits[i] * Multiplier2[i];
-            }
-            
-            var dv1 = Mod11(sum1);
-            var dv2 = Mod11(sum2 + (dv1 * 2));
+            return ToStringInternal(EstiloFormatacaoCnpj.Nenhum);
+        }
+        
+        public string ToString(EstiloFormatacaoCnpj estilo)
+        {
+            return ToStringInternal(estilo);
+        }
 
-            return dv1 * 10 + dv2;
+        private string ToStringInternal(EstiloFormatacaoCnpj estilo)
+        {
+            var value = _value;
+            Span<char> digits = stackalloc char[CnpjLength];
+            for (int i = digits.Length - 1; i >= 0; i--)
+            {
+                digits[i] = (char)(value % 10 + '0');
+                value /= 10;
+            }
+
+            return estilo switch
+            {
+                EstiloFormatacaoCnpj.Nenhum => digits.ToString(),
+                EstiloFormatacaoCnpj.Padrao => Masks.Apply(Mask, digits),
+                _ => throw new ArgumentException("O valor informado não é um estilo de formatação de CNPJ válido",
+                    nameof(estilo))
+            };
+
+        }
+
+        public bool Equals(Cnpj other)
+        {
+            return _value == other._value;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Cnpj other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return _value.GetHashCode();
+        }
+
+        public static bool operator ==(Cnpj left, Cnpj right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Cnpj left, Cnpj right)
+        {
+            return !left.Equals(right);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int CalculateDV12(Span<int> digits)
+        private static int CalculateDV(ReadOnlySpan<int> digits)
         {
             var sum1 =
                 digits[0] * 5 +
@@ -640,14 +169,8 @@ namespace BrTypes
                 digits[10] * 4 +
                 digits[11] * 3;
 
-            // for (int i = 0; i < digits.Length; i++)
-            // {
-            //     sum1 += digits[i] * Multiplier1[i];
-            //     sum2 += digits[i] * Multiplier2[i];
-            // }
-            
             var dv1 = Mod11(sum1);
-            var dv2 = Mod11(sum2 + (dv1 * 2));
+            var dv2 = Mod11(sum2 + dv1 * 2);
 
             return dv1 * 10 + dv2;
         }
@@ -660,7 +183,7 @@ namespace BrTypes
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool AllSame(Span<int> digits)
+        private static bool AllSame(ReadOnlySpan<int> digits)
         {
             for (var i = 1; i < CnpjLength; i++)
             {
@@ -669,31 +192,6 @@ namespace BrTypes
             }
 
             return true;
-        }
-
-        public bool Equals(Cnpj other)
-        {
-            return _number == other._number;
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is Cnpj other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            return _number.GetHashCode();
-        }
-
-        public static bool operator ==(Cnpj left, Cnpj right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(Cnpj left, Cnpj right)
-        {
-            return !left.Equals(right);
         }
     }
 }

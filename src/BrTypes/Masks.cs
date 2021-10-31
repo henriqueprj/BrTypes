@@ -34,5 +34,18 @@ namespace BrTypes
                 maskedValue[i] = mask[i] == PlaceHolder ? value[valueIndex++] : mask[i];
             return maskedValue.Slice(0, i).ToString();
         }
+        
+        public static string Apply(string mask, ReadOnlySpan<char> value)
+        {
+            if (string.IsNullOrEmpty(mask))
+                throw new ArgumentNullException(nameof(mask), $"Parameter '{nameof(mask)}' should not be null");
+
+            Span<char> maskedValue = stackalloc char[mask.Length];
+            int valueIndex = 0;
+            int i;
+            for (i = 0; i < mask.Length && valueIndex < value.Length; i++)
+                maskedValue[i] = mask[i] == PlaceHolder ? value[valueIndex++] : mask[i];
+            return maskedValue.Slice(0, i).ToString();
+        }
     }
 }

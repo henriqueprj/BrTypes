@@ -11,4 +11,17 @@
         /// </summary>
         Padrao
     }
+    
+    public enum EstiloFormatacaoCnpj
+    {
+        /// <summary>
+        /// Sem formatação
+        /// </summary>
+        Nenhum,
+        
+        /// <summary>
+        /// Formato padrão: 00.000.000/0000-00
+        /// </summary>
+        Padrao
+    }
 }
