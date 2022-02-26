@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace BrTypes
 {
@@ -328,29 +329,25 @@ namespace BrTypes
         
     }
 
-    public interface IDigitsFiller
+    public class Digits// : IDigitsFiller
     {
-        bool TryParse([NotNullWhen(true)]string? s, Span<int> digits);
-    }
+        //public static readonly Digits Default = new();
 
-    public class Digits : IDigitsFiller
-    {
-        public static readonly Digits Default = new();
-
-        private Digits()
-        {
-        }
+        // private Digits()
+        // {
+        // }
         
-        public bool TryParse([NotNullWhen(true)]string? s, Span<int> digits)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryParse([NotNullWhen(true)]string? s, ref Span<int> digits)
         {
-            if (string.IsNullOrEmpty(s))
-                throw new ArgumentNullException(nameof(s), "s must neither be null or empty");
+            if (s is null)
+                return false;
             
             var digitIndex = 0;
 
-            foreach (var c in s!)
+            for (var i = 0; i < s!.Length; i++)
             {
-                var digit = c - '0';
+                var digit = s[i] - '0';
                 if (digit is < 0 or > 9)
                     continue;
 
@@ -362,6 +359,90 @@ namespace BrTypes
             }
             
             return digitIndex == digits.Length;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryParse([NotNullWhen(true)]string? s, ref Span<byte> digits)
+        {
+            if (s is null)
+                return false;
+            
+            var digitIndex = 0;
+
+            for (var i = 0; i < s.Length; i++)
+            {
+                var digit = s[i] - '0';
+                if (digit is < 0 or > 9)
+                    continue;
+
+                if (digitIndex == digits.Length)
+                    return false;
+                
+                digits[digitIndex] = (byte)digit;
+                digitIndex++;
+            }
+            
+            return digitIndex == digits.Length;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool AllSame(in ReadOnlySpan<int> digits)
+        {
+            if (digits.Length == 0) return false;
+
+            for (var i = 1; i < digits.Length; i++)
+            {
+                if (digits[i - 1] != digits[i])
+                    return false;
+            }
+            return true;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool AllSame(in ReadOnlySpan<byte> digits)
+        {
+            if (digits.Length == 0) return false;
+
+            for (var i = 1; i < digits.Length; i++)
+            {
+                if (digits[i - 1] != digits[i])
+                    return false;
+            }
+            return true;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool AllSame(in Span<byte> digits)
+        {
+            if (digits.Length == 0) return false;
+
+            for (var i = 1; i < digits.Length; i++)
+            {
+                if (digits[i - 1] != digits[i])
+                    return false;
+            }
+            return true;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool AllSame(in Span<int> digits)
+        {
+            if (digits.Length == 0) 
+                return false;
+
+            for (var i = 1; i < digits.Length; i++)
+            {
+                if (digits[i - 1] != digits[i])
+                    return false;
+            }
+            return true;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Mod11(int value)
+        {
+            var result = 11 - value % 11;
+            return result < 10 ? result : 0;
         }
     }
 }

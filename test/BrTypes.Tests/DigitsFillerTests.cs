@@ -11,7 +11,7 @@ namespace BrTypes.Tests
         {
             Span<int> digits = stackalloc int[5];
             
-            var resultado = Digits.Default.TryParse("12345", digits);
+            var resultado = Digits.TryParse("12345", ref digits);
 
             resultado.Should().BeTrue();
 
@@ -30,7 +30,7 @@ namespace BrTypes.Tests
         {
             Span<int> digits = stackalloc int[5];
             
-            var resultado =  Digits.Default.TryParse("12a34.5", digits);
+            var resultado =  Digits.TryParse("12a34.5", ref digits);
 
             resultado.Should().BeTrue();
             
@@ -50,7 +50,7 @@ namespace BrTypes.Tests
             Span<int> digits = stackalloc int[5];
             
             
-            var resultado =  Digits.Default.TryParse("1a2.3", digits);
+            var resultado =  Digits.TryParse("1a2.3", ref digits);
 
             resultado.Should().BeFalse();
             
@@ -69,7 +69,7 @@ namespace BrTypes.Tests
         {
             Span<int> digits = stackalloc int[3];
             
-            var resultado = Digits.Default.TryParse("1234", digits);
+            var resultado = Digits.TryParse("1234", ref digits);
 
             resultado.Should().BeFalse();
             
@@ -88,7 +88,7 @@ namespace BrTypes.Tests
         {
             Span<int> digits = stackalloc int[3];
             
-            var resultado = Digits.Default.TryParse("1a23.4", digits);
+            var resultado = Digits.TryParse("1a23.4", ref digits);
 
             resultado.Should().BeFalse();
             

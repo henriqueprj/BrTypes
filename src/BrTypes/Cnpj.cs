@@ -43,13 +43,13 @@ namespace BrTypes
             
             Span<int> digits = stackalloc int[CnpjLength]; 
 
-            if (!Digits.Default.TryParse(s, digits))
+            if (!Digits.TryParse(s, ref digits))
             {
                 result = default;
                 return false;
             }
 
-            if (AllSame(digits))
+            if (AllSameDigits(digits))
             {
                 result = default;
                 return false;
@@ -176,16 +176,24 @@ namespace BrTypes
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int Mod11(int sum)
+        private static int Mod11(int value)
         {
-            var reminder = sum % 11;
-            return reminder <= 2 ? 0 : 11 - reminder;
+            var result = 11 - value % 11;
+            return result < 10 ? result : 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool AllSame(ReadOnlySpan<int> digits)
+        private static bool AllSameDigits(ReadOnlySpan<int> digits)
         {
-            for (var i = 1; i < CnpjLength; i++)
+            switch (digits.Length)
+            {
+                case 0:
+                    return false;
+                case 1:
+                    return true;
+            }
+            
+            for (var i = 1; i < digits.Length; i++)
             {
                 if (digits[i - 1] != digits[i])
                     return false;

@@ -15,8 +15,8 @@ namespace ConsoleTests
 
         private static void RunBenchmarks()
         {
-            //var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cpf.CpfVsCpf2Benchmark>();
-            var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cnpj.CnpjBenchmark>();
+            var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cpf.CpfVsCpf2Benchmark>();
+            //var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cnpj.CnpjBenchmark>();
             //var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Digits.DigitsBenchmark>();
         }
 

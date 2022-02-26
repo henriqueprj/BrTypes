@@ -502,7 +502,7 @@ namespace BrTypes
             
             Span<int> digits = stackalloc int[CnpjLength]; 
 
-            if (!Digits.Default.TryParse(s, digits))
+            if (!Digits.TryParse(s, ref digits))
             {
                 result = default;
                 return false;
@@ -552,7 +552,7 @@ namespace BrTypes
             
             Span<int> digits = stackalloc int[CnpjLength]; 
 
-            if (!Digits.Default.TryParse(s, digits))
+            if (!Digits.TryParse(s, ref digits))
             {
                 result = default;
                 return false;
