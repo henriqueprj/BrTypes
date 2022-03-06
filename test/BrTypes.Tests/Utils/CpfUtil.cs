@@ -50,14 +50,12 @@ namespace BrTypes.Tests.Utils
         public static string GerarCpf(bool comMascara = false)
         {
             string cpf;
-            
+
             do
             {
                 cpf = GerarCpfInternal();
-            } 
-            while (cpf == "00000000000" || cpf == "11111111111" || cpf == "22222222222" || cpf == "33333333333" ||
-                   cpf == "44444444444" || cpf == "55555555555" || cpf == "66666666666" || cpf == "77777777777" ||
-                   cpf == "88888888888" || cpf == "99999999999");
+            } while (cpf is "00000000000" or "11111111111" or "22222222222" or "33333333333" or "44444444444"
+                     or "55555555555" or "66666666666" or "77777777777" or "88888888888" or "99999999999");
 
             return comMascara 
                 ? AplicarMascara(cpf) 

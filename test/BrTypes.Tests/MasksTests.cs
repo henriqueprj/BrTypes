@@ -20,7 +20,7 @@ namespace BrTypes.Tests
         [Fact]
         public void RetornaNullSeValorForNull()
         {
-            var resultado = Masks.Apply("###", null);
+            var resultado = Masks.Apply("###", (string?)null);
             resultado.Should().BeNull();
         }
         

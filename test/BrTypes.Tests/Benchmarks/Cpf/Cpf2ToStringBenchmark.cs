@@ -17,6 +17,12 @@ namespace BrTypes.Tests.Benchmarks.Cpf
         {
             return _value.ToString();
         }
+        
+        [Benchmark]
+        public string Cpf2_ToString2()
+        {
+            return _value.ToString2();
+        }
 
     }
 }

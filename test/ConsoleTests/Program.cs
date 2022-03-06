@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using BenchmarkDotNet.Running;
 using BrTypes;
+using BrTypes.Tests.Benchmarks.Cpf;
 
 namespace ConsoleTests
 {
@@ -9,16 +10,20 @@ namespace ConsoleTests
     {
         static void Main(string[] args)
         {
-            RunBenchmarks(); 
+            BenchmarkSwitcher
+                .FromAssembly(typeof(Cpf2ToStringBenchmark).Assembly).Run(args);
+        
+            //RunBenchmarks(); 
             // RunSimpleTests();
         }
 
         private static void RunBenchmarks()
         {
-            //var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cpf.CpfVsCpf2Benchmark>();
+            var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cpf.CpfVsCpf2Benchmark>();
             //var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cnpj.CnpjBenchmark>();
             //var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Digits.DigitsBenchmark>();
-            var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cpf.Cpf2ToStringBenchmark>();
+            //var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Cpf.Cpf2ToStringBenchmark>();
+            // var summary = BenchmarkRunner.Run<BrTypes.Tests.Benchmarks.Digits.CalculateDVBenchmark>();
         }
 
         private static void RunSimpleTests()
