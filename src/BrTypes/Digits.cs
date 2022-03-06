@@ -344,13 +344,13 @@ namespace BrTypes
                 return false;
             
             var digitIndex = 0;
-
+        
             for (var i = 0; i < s!.Length; i++)
             {
                 var digit = s[i] - '0';
                 if (digit is < 0 or > 9)
                     continue;
-
+        
                 if (digitIndex == digits.Length)
                     return false;
                 
@@ -360,9 +360,9 @@ namespace BrTypes
             
             return digitIndex == digits.Length;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryParse([NotNullWhen(true)]string? s, ref Span<char> digits)
+        public static bool TryParse([NotNullWhen(true)]string? s, Span<char> digits)
         {
             if (s is null)
                 return false;
@@ -383,44 +383,7 @@ namespace BrTypes
             
             return digitIndex == digits.Length;
         }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool TryParse([NotNullWhen(true)]string? s, ref Span<byte> digits)
-        {
-            if (s is null)
-                return false;
-            
-            var digitIndex = 0;
 
-            for (var i = 0; i < s.Length; i++)
-            {
-                var digit = s[i] - '0';
-                if (digit is < 0 or > 9)
-                    continue;
-
-                if (digitIndex == digits.Length)
-                    return false;
-                
-                digits[digitIndex] = (byte)digit;
-                digitIndex++;
-            }
-            
-            return digitIndex == digits.Length;
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool AllSame(in ReadOnlySpan<int> digits)
-        {
-            if (digits.Length == 0) return false;
-
-            for (var i = 1; i < digits.Length; i++)
-            {
-                if (digits[i - 1] != digits[i])
-                    return false;
-            }
-            return true;
-        }
-        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool AllSame(in ReadOnlySpan<char> digits)
         {
@@ -447,45 +410,45 @@ namespace BrTypes
             return true;
         }
         
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool AllSame(in ReadOnlySpan<byte> digits)
-        {
-            if (digits.Length == 0) return false;
-
-            for (var i = 1; i < digits.Length; i++)
-            {
-                if (digits[i - 1] != digits[i])
-                    return false;
-            }
-            return true;
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool AllSame(in Span<byte> digits)
-        {
-            if (digits.Length == 0) return false;
-
-            for (var i = 1; i < digits.Length; i++)
-            {
-                if (digits[i - 1] != digits[i])
-                    return false;
-            }
-            return true;
-        }
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool AllSame(in Span<int> digits)
-        {
-            if (digits.Length == 0) 
-                return false;
-
-            for (var i = 1; i < digits.Length; i++)
-            {
-                if (digits[i - 1] != digits[i])
-                    return false;
-            }
-            return true;
-        }
+        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // public static bool AllSame(in ReadOnlySpan<byte> digits)
+        // {
+        //     if (digits.Length == 0) return false;
+        //
+        //     for (var i = 1; i < digits.Length; i++)
+        //     {
+        //         if (digits[i - 1] != digits[i])
+        //             return false;
+        //     }
+        //     return true;
+        // }
+        //
+        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // public static bool AllSame(in Span<byte> digits)
+        // {
+        //     if (digits.Length == 0) return false;
+        //
+        //     for (var i = 1; i < digits.Length; i++)
+        //     {
+        //         if (digits[i - 1] != digits[i])
+        //             return false;
+        //     }
+        //     return true;
+        // }
+        //
+        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // public static bool AllSame(in Span<int> digits)
+        // {
+        //     if (digits.Length == 0) 
+        //         return false;
+        //
+        //     for (var i = 1; i < digits.Length; i++)
+        //     {
+        //         if (digits[i - 1] != digits[i])
+        //             return false;
+        //     }
+        //     return true;
+        // }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Mod11(int value)

@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace BrTypes
@@ -22,7 +21,7 @@ namespace BrTypes
             }
             
             Span<char> digits = stackalloc char[11];
-            if (!Digits.TryParse(s, ref digits))
+            if (!Digits.TryParse(s, digits))
             {
                 result = default;
                 return false;
@@ -34,24 +33,14 @@ namespace BrTypes
                 return false;
             }
 
-            var dv = CalculateDV2(in digits);
+            var dv = CalculateDV(in digits);
             if ((digits[9] - '0') * 10 + (digits[10] - '0') != dv)
             {
                 result = default;
                 return false;
             }
             
-            // this is on purpose for performance reasons
-            var cpfBase =
-                (digits[0] - '0') * 100000000 +
-                (digits[1] - '0') * 10000000 +
-                (digits[2] - '0') * 1000000 +
-                (digits[3] - '0') * 100000 +
-                (digits[4] - '0') * 10000 +
-                (digits[5] - '0') * 1000 +
-                (digits[6] - '0') * 100 +
-                (digits[7] - '0') * 10 +
-                (digits[8] - '0');
+            var cpfBase = SpanOfCharToInt32(in digits);
 
             result = new Cpf2(cpfBase);
             return true;
@@ -71,40 +60,7 @@ namespace BrTypes
         public static implicit operator Cpf2(string numero) => Parse(numero);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int CalculateDV(in Span<int> digits)
-        {
-            // this is on purpose for performance reasons
-            var sum1 =
-                digits[0] * 10 +
-                digits[1] * 9 +
-                digits[2] * 8 +
-                digits[3] * 7 +
-                digits[4] * 6 +
-                digits[5] * 5 +
-                digits[6] * 4 +
-                digits[7] * 3 +
-                digits[8] * 2;
-
-            // this is on purpose for performance reasons
-            var sum2 =
-                digits[0] * 11 +
-                digits[1] * 10 +
-                digits[2] * 9 +
-                digits[3] * 8 +
-                digits[4] * 7 +
-                digits[5] * 6 +
-                digits[6] * 5 +
-                digits[7] * 4 +
-                digits[8] * 3;
-
-            var dv1 = Digits.Mod11(sum1);
-            var dv2 = Digits.Mod11(sum2 + dv1 * 2);
-
-            return dv1 * 10 + dv2;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int CalculateDV2(in Span<char> digits)
+        private static int CalculateDV(in Span<char> digits)
         {
             // this is on purpose for performance reasons
             var sum1 =
@@ -148,7 +104,7 @@ namespace BrTypes
 #endif
                 var baseDigits = digits.Slice(0, 9);
                 Int32ToSpanOfChar(value, baseDigits);
-                var dv = CalculateDV2(in baseDigits);
+                var dv = CalculateDV(in baseDigits);
                 digits[9] = (char)(dv / 10 + '0');
                 digits[10] = (char)(dv % 10 + '0');
 #if NETCOREAPP2_1_OR_GREATER
@@ -156,6 +112,23 @@ namespace BrTypes
 #else
                 return digits.ToString();
 #endif
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int SpanOfCharToInt32(in Span<char> digits)
+        {
+            System.Diagnostics.Debug.Assert(digits.Length == 9, "digits should have length 9");
+            
+            // this is on purpose for performance reasons
+            return (digits[0] - '0') * 100000000 +
+                   (digits[1] - '0') * 10000000 +
+                   (digits[2] - '0') * 1000000 +
+                   (digits[3] - '0') * 100000 +
+                   (digits[4] - '0') * 10000 +
+                   (digits[5] - '0') * 1000 +
+                   (digits[6] - '0') * 100 +
+                   (digits[7] - '0') * 10 +
+                   (digits[8] - '0');
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
