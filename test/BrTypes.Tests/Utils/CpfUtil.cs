@@ -62,6 +62,21 @@ namespace BrTypes.Tests.Utils
                 : cpf;
         }
 
+        public static string GerarCpf(int semente, bool comMascara = false)
+        {
+            string cpf;
+
+            do
+            {
+                cpf = GerarCpfInternal(semente);
+            } while (cpf is "00000000000" or "11111111111" or "22222222222" or "33333333333" or "44444444444"
+                     or "55555555555" or "66666666666" or "77777777777" or "88888888888" or "99999999999");
+
+            return comMascara 
+                ? AplicarMascara(cpf) 
+                : cpf;
+        }
+
         public static string RemoverMascara(string cpfComMascara)
             => new string(cpfComMascara.Where(char.IsDigit).ToArray());
 
@@ -70,16 +85,26 @@ namespace BrTypes.Tests.Utils
         
         private static string GerarCpfInternal()
         {
-            int soma1 = 0, soma2 = 0;
-
             var semente = Rnd.Next(1, 999999999).ToString("000000000");
+            return GerarCpfInternal(semente);
+        }
 
+        private static string GerarCpfInternal(int semente)
+        {
+            return GerarCpfInternal(semente.ToString("000000000"));
+        }
+        
+        private static string GerarCpfInternal(string semente)
+        {
+            int soma1 = 0, soma2 = 0;
+            
             for (var i = 0; i < 9; i++)
             {
                 var digito = semente[i] - '0';
                 soma1 += digito * Multiplicador1[i];
                 soma2 += digito * Multiplicador2[i];
             }
+
 
             var dv1 = soma1 % 11;
             if (dv1 < 2)

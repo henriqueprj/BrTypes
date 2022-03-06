@@ -76,7 +76,7 @@ namespace BrTypes.Tests
         [Fact]
         public void Cpfs_com_mesmo_numero_devem_ser_considerados_iguais()
         {
-            var numero = CpfUtils.GerarCpf();
+            var numero = CpfUtils.GerarCpf(692_132_591);
             
             var cpf1 = Cpf2.Parse(numero);
             var cpf2 = Cpf2.Parse(numero);
@@ -89,7 +89,7 @@ namespace BrTypes.Tests
         [Fact]
         public void ToString_deve_retornar_cpf_sem_formatacao()
         {
-            var cpfComMascara = CpfUtils.GerarCpf(comMascara: true);
+            var cpfComMascara = CpfUtils.GerarCpf(692_132_591, comMascara: true);
             var cpfSemMascara = CpfUtils.RemoverMascara(cpfComMascara);
 
             var cpf = Cpf2.Parse(cpfComMascara);

@@ -20,51 +20,7 @@ namespace BrTypes
                 result = default;
                 return false;
             }
-
-            Span<int> digits = stackalloc int[11];
-            if (!Digits.TryParse(s, ref digits))
-            {
-                result = default;
-                return false;
-            }
-
-            if (Digits.AllSame(in digits))
-            {
-                result = default;
-                return false;
-            }
-
-            var dv = CalculateDV(in digits);
-            if (digits[9] * 10 + digits[10] != dv)
-            {
-                result = default;
-                return false;
-            }
-
-            // this is on purpose for performance reasons
-            var cpfBase =
-                digits[0] * 100000000 +
-                digits[1] * 10000000 +
-                digits[2] * 1000000 +
-                digits[3] * 100000 +
-                digits[4] * 10000 +
-                digits[5] * 1000 +
-                digits[6] * 100 +
-                digits[7] * 10 +
-                digits[8];
-
-            result = new Cpf2(cpfBase);
-            return true;
-        }
-        
-        public static bool TryParse2(string? s, out Cpf2 result)
-        {
-            if (s is null)
-            {
-                result = default;
-                return false;
-            }
-
+            
             Span<char> digits = stackalloc char[11];
             if (!Digits.TryParse(s, ref digits))
             {
@@ -79,7 +35,7 @@ namespace BrTypes
             }
 
             var dv = CalculateDV2(in digits);
-            if (digits[9] * 10 + digits[10] != dv)
+            if ((digits[9] - '0') * 10 + (digits[10] - '0') != dv)
             {
                 result = default;
                 return false;
@@ -181,35 +137,6 @@ namespace BrTypes
         }
 
         public override string ToString()
-        {
-#if NETCOREAPP2_1_OR_GREATER
-            return string.Create(11, _value, (digits, state) =>
-            {
-                int value = state;
-#else
-            int value = _value;
-            Span<char> digits = stackalloc char[11];
-#endif
-            Span<int> digitsToCalculateDV = stackalloc int[9];
-            for (var i = 8; i >= 0; i--)
-            {
-                var digit = value % 10;
-                value /= 10;
-                digits[i] = (char)(digit + '0');
-                digitsToCalculateDV[i] = digit;
-            }
-
-            var dv = CalculateDV(in digitsToCalculateDV);
-            digits[9] = (char)(dv / 10 + '0');
-            digits[10] = (char)(dv % 10 + '0');
-#if NETCOREAPP2_1_OR_GREATER
-            });
-#else
-            return digits.ToString();
-#endif
-        }
-
-        public string ToString2()
         {
 #if NETCOREAPP2_1_OR_GREATER
             return string.Create(11, _value, (digits, state) =>
