@@ -28,12 +28,6 @@ namespace ConsoleTests
 
         private static void RunSimpleTests()
         {
-            Span<int> digits = stackalloc int[2];
-            //var b1 = BrTypes.Digits.Fill(digits, "07.245.465/0001-51", 14);
-            var b2 = BrTypes.DigitZ.Fill2(digits, "1.2");
-            //Console.WriteLine(b1);
-            Console.WriteLine(b2);
-            
             // var sw = new Stopwatch();
             // var before2 = GC.CollectionCount(2);
             // var before1 = GC.CollectionCount(1);
