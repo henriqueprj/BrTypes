@@ -64,13 +64,9 @@ namespace BrTypes.Tests.Utils
 
         public static string GerarCpf(int semente, bool comMascara = false)
         {
-            string cpf;
+            if (semente is < 0 or > 999999999) throw new ArgumentOutOfRangeException(nameof(semente));
 
-            do
-            {
-                cpf = GerarCpfInternal(semente);
-            } while (cpf is "00000000000" or "11111111111" or "22222222222" or "33333333333" or "44444444444"
-                     or "55555555555" or "66666666666" or "77777777777" or "88888888888" or "99999999999");
+            var cpf = GerarCpfInternal(semente);
 
             return comMascara 
                 ? AplicarMascara(cpf) 
@@ -105,7 +101,7 @@ namespace BrTypes.Tests.Utils
                 soma2 += digito * Multiplicador2[i];
             }
 
-
+            //var dv1 = Digits.Mod11(soma1);
             var dv1 = soma1 % 11;
             if (dv1 < 2)
                 dv1 = 0;

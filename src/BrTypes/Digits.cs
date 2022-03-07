@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace BrTypes
 {
-    public static class Digits// : IDigitsFiller
+    public static class Digits
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryParse([NotNullWhen(true)]string? s, ref Span<int> digits)
@@ -64,13 +64,6 @@ namespace BrTypes
                     return false;
             }
             return true;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Mod11(int value)
-        {
-            var result = 11 - value % 11;
-            return result < 10 ? result : 0;
         }
     }
 }

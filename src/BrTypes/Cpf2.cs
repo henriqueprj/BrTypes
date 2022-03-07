@@ -33,15 +33,15 @@ namespace BrTypes
                 return false;
             }
 
-            var dv = CalculateDV(in digits);
-            if ((digits[9] - '0') * 10 + (digits[10] - '0') != dv)
+            var dv = (digits[9] - '0') * 10 + (digits[10] - '0'); 
+            var calculatedDV = CalculateDV(in digits);
+            if (dv != calculatedDV)
             {
                 result = default;
                 return false;
             }
             
-            var cpfBase = SpanOfCharToInt32(in digits);
-
+            var cpfBase = DigitsToInt32(in digits);
             result = new Cpf2(cpfBase);
             return true;
         }
@@ -64,32 +64,39 @@ namespace BrTypes
         {
             // this is on purpose for performance reasons
             var sum1 =
-                (digits[0] - '0') * 10 +
-                (digits[1] - '0') * 9 +
-                (digits[2] - '0') * 8 +
-                (digits[3] - '0') * 7 +
-                (digits[4] - '0') * 6 +
-                (digits[5] - '0') * 5 +
-                (digits[6] - '0') * 4 +
-                (digits[7] - '0') * 3 +
-                (digits[8] - '0') * 2;
+                (digits[0] - '0') * 1 +
+                (digits[1] - '0') * 2 +
+                (digits[2] - '0') * 3 +
+                (digits[3] - '0') * 4 +
+                (digits[4] - '0') * 5 +
+                (digits[5] - '0') * 6 +
+                (digits[6] - '0') * 7 +
+                (digits[7] - '0') * 8 +
+                (digits[8] - '0') * 9;
 
             // this is on purpose for performance reasons
             var sum2 =
-                (digits[0] - '0') * 11 +
-                (digits[1] - '0') * 10 +
-                (digits[2] - '0') * 9 +
-                (digits[3] - '0') * 8 +
-                (digits[4] - '0') * 7 +
-                (digits[5] - '0') * 6 +
-                (digits[6] - '0') * 5 +
-                (digits[7] - '0') * 4 +
-                (digits[8] - '0') * 3;
+                (digits[0] - '0') * 0 +
+                (digits[1] - '0') * 1 +
+                (digits[2] - '0') * 2 +
+                (digits[3] - '0') * 3 +
+                (digits[4] - '0') * 4 +
+                (digits[5] - '0') * 5 +
+                (digits[6] - '0') * 6 +
+                (digits[7] - '0') * 7 +
+                (digits[8] - '0') * 8;
 
-            var dv1 = Digits.Mod11(sum1);
-            var dv2 = Digits.Mod11(sum2 + dv1 * 2);
+            var dv1 = Mod11(sum1);
+            var dv2 = Mod11(sum2 + (dv1 * 9));
 
             return dv1 * 10 + dv2;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int Mod11(int value)
+        {
+            var result = value % 11;
+            return result == 10 ? 0 : result;
         }
 
         public override string ToString()
@@ -103,7 +110,7 @@ namespace BrTypes
                 Span<char> digits = stackalloc char[11];
 #endif
                 var baseDigits = digits.Slice(0, 9);
-                Int32ToSpanOfChar(value, baseDigits);
+                Int32ToDigits(value, baseDigits);
                 var dv = CalculateDV(in baseDigits);
                 digits[9] = (char)(dv / 10 + '0');
                 digits[10] = (char)(dv % 10 + '0');
@@ -115,7 +122,7 @@ namespace BrTypes
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int SpanOfCharToInt32(in Span<char> digits)
+        private static int DigitsToInt32(in Span<char> digits)
         {
             System.Diagnostics.Debug.Assert(digits.Length == 9, "digits should have length 9");
             
@@ -132,7 +139,7 @@ namespace BrTypes
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Int32ToSpanOfChar(int baseCpf, Span<char> digits)
+        private static void Int32ToDigits(int baseCpf, Span<char> digits)
         {
             System.Diagnostics.Debug.Assert(baseCpf < 1_000_000_000, "baseCpf should be 9 (999999999) digits max");
             

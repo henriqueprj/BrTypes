@@ -34,6 +34,22 @@ namespace BrTypes.Tests
             act.Should().ThrowExactly<CpfInvalidoException>();
         }
 
+        // [Theory]
+        // [InlineData("00000000011")]
+        // [InlineData("11111111111")]
+        // [InlineData("22222222222")]
+        // [InlineData("33333333333")]
+        // [InlineData("44444444444")]
+        // [InlineData("55555555555")]
+        // [InlineData("66666666666")]
+        // [InlineData("77777777777")]
+        // [InlineData("88888888888")]
+        // [InlineData("99999999999")]
+        // public void Apenas_digitos_base_iguais_nao_configura_cpf_com_digitos_iguais()
+        // {
+        //     
+        // }
+
         [Theory]
         [InlineData("617.097.540-79")]
         [InlineData("61709754079")]
@@ -76,7 +92,8 @@ namespace BrTypes.Tests
         [Fact]
         public void Cpfs_com_mesmo_numero_devem_ser_considerados_iguais()
         {
-            var numero = CpfUtils.GerarCpf(692_132_591);
+            var numero = CpfUtils.GerarCpf(123_456_789);
+            var t = CpfUtils.GerarCpf(1);
             
             var cpf1 = Cpf2.Parse(numero);
             var cpf2 = Cpf2.Parse(numero);

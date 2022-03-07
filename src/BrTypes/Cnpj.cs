@@ -82,6 +82,62 @@ namespace BrTypes
             result = new Cnpj(number);
             return true;
         }
+        
+        /// <summary>
+        /// Converte uma string em Cnpj e retorna o valor indicando se a conversão foi realizada com sucesso.
+        /// </summary>
+        /// <param name="s">Representação string do CNPJ</param>
+        /// <param name="result">Estrutura de dados representando o CNPJ convertido</param>
+        /// <returns>True caso a conversão tenha ocorrido com sucesso.</returns>
+        public static bool TryParse2([NotNullWhen(true)]string? s, out Cnpj result)
+        {
+            if (s == null)
+            {
+                result = default;
+                return false;
+            }
+            
+            Span<char> digits = stackalloc char[CnpjLength]; 
+
+            if (!Digits.TryParse(s, digits))
+            {
+                result = default;
+                return false;
+            }
+
+            if (Digits.AllSame(digits))
+            {
+                result = default;
+                return false;
+            }
+
+            var dv = CalculateDV2(digits);
+            
+            if (dv != (digits[12] * 10 + digits[13]))
+            {
+                result = default;
+                return false;
+            }
+
+            long number =
+                (digits[0] - '0')  * 10000000000000L +
+                (digits[1] - '0')  * 1000000000000L +
+                (digits[2] - '0')  * 100000000000L +
+                (digits[3] - '0')  * 10000000000L +
+                (digits[4] - '0')  * 1000000000L +
+                (digits[5] - '0')  * 100000000L +
+                (digits[6] - '0')  * 10000000L +
+                (digits[7] - '0')  * 1000000L +
+                (digits[8] - '0')  * 100000L +
+                (digits[9] - '0')  * 10000L +
+                (digits[10] - '0') * 1000L +
+                (digits[11] - '0') * 100L +
+                (digits[12] - '0') * 10L +
+                (digits[13] - '0');
+
+            result = new Cnpj(number);
+            return true;
+        }
 
         public override string ToString()
         {
@@ -168,6 +224,43 @@ namespace BrTypes
                 digits[9] * 5 +
                 digits[10] * 4 +
                 digits[11] * 3;
+
+            var dv1 = Mod11(sum1);
+            var dv2 = Mod11(sum2 + dv1 * 2);
+
+            return dv1 * 10 + dv2;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int CalculateDV2(Span<char> digits)
+        {
+            var sum1 =
+                (digits[0] - '0') * 5 +
+                (digits[1] - '0') * 4 +
+                (digits[2] - '0') * 3 +
+                (digits[3] - '0') * 2 +
+                (digits[4] - '0') * 9 +
+                (digits[5] - '0') * 8 +
+                (digits[6] - '0') * 7 +
+                (digits[7] - '0') * 6 +
+                (digits[8] - '0') * 5 +
+                (digits[9] - '0') * 4 +
+                (digits[10] - '0') * 3 +
+                (digits[11] - '0') * 2;
+
+            var sum2 =
+                (digits[0] - '0') * 6 +
+                (digits[1] - '0') * 5 +
+                (digits[2] - '0') * 4 +
+                (digits[3] - '0') * 3 +
+                (digits[4] - '0') * 2 +
+                (digits[5] - '0') * 9 +
+                (digits[6] - '0') * 8 +
+                (digits[7] - '0') * 7 +
+                (digits[8] - '0') * 6 +
+                (digits[9] - '0') * 5 +
+                (digits[10] - '0') * 4 +
+                (digits[11] - '0') * 3;
 
             var dv1 = Mod11(sum1);
             var dv2 = Mod11(sum2 + dv1 * 2);
