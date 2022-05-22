@@ -4,7 +4,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace BrTypes.Tests.Benchmarks.Digits
 {
-    [MemoryDiagnoser()]
+    [MemoryDiagnoser]
     public class CalculateDVBenchmark
     {
         [Benchmark(Baseline = true)]
